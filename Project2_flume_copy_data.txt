@@ -1,0 +1,6 @@
+hadoop dfs -mkdir /flume_project2
+
+flume-ng agent -n agent1 -c conf -f /home/neeraj/Downloads/filecopy1.conf
+
+
+

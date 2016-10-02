@@ -1,0 +1,31 @@
+a = LOAD '/flume_project2/Consumer_Complaints.csv' using PigStorage(',') 
+AS (date_recieved:chararray,product:chararray,sub_product:chararray,issue:chararray,sub_issue:chararray,ccn:chararray,
+cp_response:chararray,company:chararray,state:chararray,zip:int,submitted_via:chararray,date_sent_to_comp:chararray,
+company_response_consumer:chararray,timely_response:chararray,cons_disputed:chararray,complaint_id:int);
+
+
+dump a;
+
+b = foreach a generate complaint_id,date_recieved,timely_response;
+
+dump b;
+
+c = filter b by timely_response =='Yes';
+
+dump c;
+
+/* to get the count we need to group alias*/
+d = group c all;
+
+e = foreach d generate COUNT(c);
+
+OR
+
+e = foreach(group c all) generate COUNT(c);
+
+/*total records:213949 */
+
+/* folder should not be pre-created,it creates automatically*/
+store e into 'hdfs://localhost:9000/project2_output1/' using PigStorage(',');
+
+sqoop export --connect jdbc:mysql://localhost/db1 --username 'root' -P --table 'tbl_project_2_count' --export-dir '/project2_output1/part-r-00000'
